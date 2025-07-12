@@ -1,0 +1,29 @@
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1.5rem 3rem;
+}
+
+.iconButton {
+  border: none;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: none;
+  align-items: center;
+  min-width: 10rem;
+  cursor: pointer;
+}
+
+.iconName {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: #1e1e1f;
+}
+
+.iconRawName {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-200);
+}

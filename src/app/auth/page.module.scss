@@ -1,0 +1,129 @@
+@keyframes swimOne {
+  0% {
+    transform: rotate(0deg) translateX(-200%);
+  }
+  50% {
+    transform: rotate(180deg) translateX(-200%);
+  }
+  100% {
+    transform: rotate(0deg) translateX(-200%);
+  }
+}
+
+@keyframes swimTwo {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.8);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.wrapper {
+  width: 100vw;
+  height: 100dvh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
+
+  i {
+    position: absolute;
+    font-weight: 500;
+    color: var(--primary-600);
+    z-index: 0;
+    font-family: 'pixel';
+  }
+
+  .one {
+    font-size: 230px;
+    top: 90%;
+    left: 35%;
+    animation: swimOne 24s linear infinite;
+  }
+
+  .two {
+    font-size: 140px;
+    top: -15%;
+    left: -7%;
+    animation: swimTwo 6s linear infinite;
+  }
+
+  .center {
+    position: relative;
+    transition: all 0.3s;
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 2rem 2.5rem;
+    margin: auto;
+    align-self: center;
+    box-shadow:
+      15px 15px 30px #bebebe83,
+      -15px -15px 30px #ffffff;
+
+    h1 {
+      color: var(--text-main);
+      text-align: center;
+    }
+
+    form {
+      margin: 1rem 0;
+      padding: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      button {
+        margin-top: 1rem;
+      }
+    }
+
+    .policy {
+      z-index: 2;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+
+      a {
+        cursor: pointer;
+        color: var(--primary-500);
+      }
+    }
+
+    .bottom {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-main);
+
+      span {
+        z-index: 2;
+        cursor: pointer;
+        color: var(--primary-500);
+        transition: 0.3s all;
+
+        &:hover {
+          color: var(--primary-600);
+        }
+      }
+    }
+
+    &:hover {
+      box-shadow:
+        15px 15px 30px #afafaf90,
+        -15px -15px 30px #ffffff;
+    }
+
+    @media (width <= 500px) {
+      padding: 1rem 1.5rem;
+
+      form {
+        gap: 0.3rem;
+      }
+    }
+  }
+}

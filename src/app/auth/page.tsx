@@ -212,6 +212,8 @@ export default function Auth() {
                 <span>قوانین و شرایط را قبول می‌کنم.</span>
               </div>
               <Button
+                fontWeight="800"
+                fontSize="1rem"
                 type="submit"
                 // disabled={isLoading}
               >
@@ -273,6 +275,8 @@ export default function Auth() {
                 errorText={error.phone}
               />
               <Button
+                fontWeight="800"
+                fontSize="1rem"
                 type="submit"
                 // disabled={isLoading}
               >

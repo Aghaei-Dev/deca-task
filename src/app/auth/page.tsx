@@ -1,5 +1,5 @@
 'use client'
-import { useState, ChangeEvent, FormEvent } from 'react'
+import { useState, ChangeEvent } from 'react'
 import FlipCard from '@/components/FlipCard'
 import Loader from '@/components/Loader'
 import Button from '@/components/Button'
@@ -15,6 +15,9 @@ import {
 } from '../../utils/validators'
 import { toast } from '@/components/Toaster'
 import { EyeIcon, EyeSlashIcon, PhoneIcon, UserIcon } from '@/components/icons'
+import { useRouter } from 'next/navigation'
+import { fetchRandomUser } from '@/lib/api'
+import { setUserCookie } from '@/lib/auth'
 
 interface Payload {
   username: string
@@ -33,6 +36,8 @@ interface ErrorState {
 }
 
 export default function Auth() {
+  const router = useRouter()
+
   const [hasAccount, setHasAccount] = useToggle(true)
   const [toggle, setToggle] = useToggle(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -52,47 +57,79 @@ export default function Auth() {
   const toggleHasAccount = () => {
     setPayload({ username: '', email: '', password: '', phone: '', policy: false })
     setError({ username: '', email: '', password: '', phone: '' })
-    setHasAccount((prev) => !prev)
+    setHasAccount()
   }
   const inputHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target
-    setPayload((prev) => ({ ...prev, [name]: value }))
-    console.log(payload)
-    setError((prev) => ({
-      ...prev,
-      [name]:
-        name === 'username'
-          ? userNameValidator(value)
-            ? ''
-            : 'نام کاربری فقط می‌تواند شامل اعداد، حروف انگلیسی و _ باشد.'
-          : name === 'email'
-            ? emailValidator(value)
-              ? ''
-              : 'ایمیل باید صحیح باشد.'
-            : name === 'password'
-              ? passwordValidator(value)
-                ? ''
-                : 'رمز عبور باید ۶ تا ۱۰ کاراکتر و شامل اعداد و حروف انگلیسی باشد.'
-              : name === 'phone'
-                ? phoneNumberValidator(value)
-                  ? ''
-                  : 'شماره تلفن معتبر نیست. فقط اعداد انگلیسی بدون پیش‌شماره!'
-                : prev[name],
-    }))
+
+    payload[name] = value
+
+    setPayload({ ...payload })
+
+    if (name === 'username') {
+      if (userNameValidator(value)) {
+        error[name] = ''
+      } else {
+        error[name] = ' نام کاربری فقط میتواند شامل اعداد و حروف انگلیسی و _ باشد و تکراری نباشد .'
+      }
+    }
+
+    if (name === 'email') {
+      if (emailValidator(value)) {
+        error[name] = ''
+      } else {
+        error[name] = ' ایمیل باید صحیح باشد .'
+      }
+    }
+
+    if (name === 'password') {
+      if (passwordValidator(value)) {
+        error[name] = ''
+      } else {
+        error[name] =
+          'رمز عبور باید دارای حداقل ۶ کاراکتر و حداکثر ۱۰ کاراکتر باشد و فقط میتواند شامل اعداد و حروف انگلیسی باشد. '
+      }
+    }
+
+    if (name === 'phone') {
+      if (phoneNumberValidator(value)) {
+        error[name] = ''
+      } else {
+        error[name] =
+          'شماره تلفن همراه معتبر نیست. لطفا فقط اعداد انگلیسی وارد کنید و بدون پیش شماره!'
+      }
+    }
+
+    setError({ ...error })
   }
 
   const checkBoxHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setPayload((prev) => ({ ...prev, [e.target.name]: e.target.checked }))
   }
 
-  const loginHandler = async (e: FormEvent) => {
+  const loginHandler = async () => {
+    console.log(error)
+    console.log(payload)
+
     if (error.password || error.phone || error.email || payload.password.length === 0) {
       toast.error('لطفا تمام فیلد ها را پر کنید !')
       return
     }
+    setIsLoading(true)
+
+    try {
+      const user = await fetchRandomUser()
+      setUserCookie(user)
+      router.push('/dashboard')
+    } catch (err) {
+      toast.error('مجددا تلاش کنید')
+      console.log(err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const signUpHandler = async (e: FormEvent) => {
+  const signUpHandler = async () => {
     if (
       error.password ||
       error.email ||
@@ -107,6 +144,7 @@ export default function Auth() {
       toast.error('لطفا قوانین را تایید کنید !')
       return
     }
+    toast.success('قرار نیست ثبت نام کنه/لاگین کن')
   }
 
   return (
@@ -122,12 +160,12 @@ export default function Auth() {
             <form
               onSubmit={(e) => {
                 e.preventDefault()
-                signUpHandler(e)
+                signUpHandler()
               }}
             >
               <Input
                 type="text"
-                handleChange={inputHandler}
+                handleChange={(e) => inputHandler(e)}
                 value={payload.username}
                 name="username"
                 icon={<UserIcon />}
@@ -137,7 +175,7 @@ export default function Auth() {
                 errorText={error.username}
               />
               <Input
-                handleChange={inputHandler}
+                handleChange={(e) => inputHandler(e)}
                 value={payload.email}
                 name="email"
                 labelText="ایمیل"
@@ -147,7 +185,7 @@ export default function Auth() {
                 errorText={error.email}
               />
               <Input
-                handleChange={inputHandler}
+                handleChange={(e) => inputHandler(e)}
                 value={payload.password}
                 required
                 name="password"
@@ -159,7 +197,7 @@ export default function Auth() {
                 errorText={error.password}
               />
               <Input
-                handleChange={inputHandler}
+                handleChange={(e) => inputHandler(e)}
                 value={payload.phone}
                 required
                 icon={<PhoneIcon />}
@@ -173,7 +211,10 @@ export default function Auth() {
                 <CheckBox value={payload.policy} handleChange={checkBoxHandler} name="policy" />
                 <span>قوانین و شرایط را قبول می‌کنم.</span>
               </div>
-              <Button type="submit" disabled={isLoading}>
+              <Button
+                type="submit"
+                // disabled={isLoading}
+              >
                 {isLoading ? (
                   <Loader color="var(--text-white)" border="var(--primary-500)" />
                 ) : (
@@ -191,16 +232,15 @@ export default function Auth() {
             <i className={styles.two}>+</i>
             <i className={styles.one}>+</i>
             <h1>ورود به دکاموند</h1>
-            {error.general && <p className={styles.error}>{error.general}</p>}
             <form
               onSubmit={(e) => {
                 e.preventDefault()
-                loginHandler(e)
+                loginHandler()
               }}
             >
               <Input
                 type="text"
-                handleChange={inputHandler}
+                handleChange={(e) => inputHandler(e)}
                 value={payload.username}
                 name="username"
                 required
@@ -210,7 +250,7 @@ export default function Auth() {
                 errorText={error.username}
               />
               <Input
-                handleChange={inputHandler}
+                handleChange={(e) => inputHandler(e)}
                 value={payload.password}
                 required
                 name="password"
@@ -222,7 +262,7 @@ export default function Auth() {
                 errorText={error.password}
               />
               <Input
-                handleChange={inputHandler}
+                handleChange={(e) => inputHandler(e)}
                 value={payload.phone}
                 required
                 name="phone"
@@ -232,7 +272,10 @@ export default function Auth() {
                 icon={<PhoneIcon />}
                 errorText={error.phone}
               />
-              <Button type="submit" disabled={isLoading}>
+              <Button
+                type="submit"
+                // disabled={isLoading}
+              >
                 {isLoading ? (
                   <Loader color="var(--text-white)" border="var(--primary-500)" />
                 ) : (

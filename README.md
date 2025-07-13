@@ -11,6 +11,7 @@ There are just two routes as specified in the task: `/dashboard` and `/auth`.
 - If you are **logged in**:
   - ✅ You can access `/dashboard`
   - ❌ `/auth` is blocked
+  - If you want access again to `/auth` delete the cookies...
 - If you are **not logged in**:
   - ✅ You can access `/auth`
   - ❌ `/dashboard` is blocked

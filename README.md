@@ -1,4 +1,19 @@
-# deca-task
+
+
+<div align="center">
+
+## ⚠️ Attention
+
+</div>
+There are just two routes as specified in the task: `/dashboard` and `/auth`.
+
+- If you head to `/`, you will get a **404 error**.
+- If you are **logged in**:
+  - ✅ You can access `/dashboard`
+  - ❌ `/auth` is blocked
+- If you are **not logged in**:
+  - ✅ You can access `/auth`
+  - ❌ `/dashboard` is blocked
 
 ## Table of Contents
 
